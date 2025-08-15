@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'corsheaders',  # Added corsheaders to INSTALLED_APPS
+    'django_filters',  # Added for filtering
 
     # Local
     'accounts',
