@@ -5,26 +5,44 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Load theme from localStorage on mount
+  // Handle hydration
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDark(savedTheme === 'dark');
+    setMounted(true);
+    
+    // Only access localStorage after component mounts (client-side only)
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        setIsDark(savedTheme === 'dark');
+      }
+    } catch (error) {
+      // Fallback for environments without localStorage
+      console.warn('localStorage not available, using default theme');
     }
   }, []);
 
-  // Save theme to localStorage when it changes
+  // Save theme to localStorage when it changes (only on client)
   useEffect(() => {
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
+    if (mounted) {
+      try {
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        // Add data attribute to document for CSS theming
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      } catch (error) {
+        console.warn('Could not save theme to localStorage');
+      }
+    }
+  }, [isDark, mounted]);
 
   const toggleTheme = () => {
     setIsDark(!isDark);
   };
 
+  // Always provide the same structure to avoid hydration mismatch
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDark, toggleTheme, mounted }}>
       {children}
     </ThemeContext.Provider>
   );

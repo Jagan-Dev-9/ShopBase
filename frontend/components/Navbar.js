@@ -14,12 +14,54 @@ const navigation = [
 export default function Navbar({ isAuthenticated = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, mounted } = useTheme();
 
-  // Background matching theme
+  // Background matching theme - use consistent styling during SSR
   const bgClass = isDark 
     ? "bg-[#35235e] shadow sticky top-0 left-0 w-full z-[60] border-b border-pink-300/20"
     : "bg-white shadow sticky top-0 left-0 w-full z-[60] border-b border-gray-200";
+
+  // Prevent hydration mismatch by showing a consistent state during SSR
+  if (!mounted) {
+    return (
+      <header className="bg-[#35235e] shadow sticky top-0 left-0 w-full z-[60] border-b border-pink-300/20">
+        <nav className="flex items-center justify-between px-6 py-3 mx-auto max-w-7xl" aria-label="Global">
+          {/* Logo and branding */}
+          <div className="flex items-center gap-2 group">
+            <img
+              src="/shopbase_logo.png"
+              alt="ShopBase Logo"
+              className="h-10 w-auto rounded"
+            />
+            <span
+              className="text-2xl font-extrabold text-white"
+              style={{
+                fontFamily: "'Racing Sans One', cursive",
+                letterSpacing: "2px",
+              }}
+            >
+              ShopBase
+            </span>
+          </div>
+          
+          {/* Placeholder for other elements */}
+          <div className="hidden md:flex gap-4 items-center">
+            <div className="w-16 h-8"></div> {/* Home placeholder */}
+            <div className="w-20 h-8"></div> {/* Products placeholder */}
+            <div className="w-8 h-8"></div> {/* Cart placeholder */}
+            <div className="w-8 h-8"></div> {/* Theme toggle placeholder */}
+            <div className="w-16 h-8"></div> {/* Login placeholder */}
+            <div className="w-20 h-8"></div> {/* Register placeholder */}
+          </div>
+          
+          {/* Mobile hamburger placeholder */}
+          <div className="flex md:hidden">
+            <div className="w-8 h-8"></div>
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <header className={bgClass}>
