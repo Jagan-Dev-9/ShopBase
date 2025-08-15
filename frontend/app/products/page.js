@@ -96,9 +96,6 @@ export default function ProductsPage() {
           : (Array.isArray(productsData) ? productsData : []); // Direct array or fallback
         const categories = Array.isArray(categoriesData) ? categoriesData : [];
         
-        console.log("Products received:", products.length, "products");
-        console.log("Categories received:", categories.length, "categories");
-        
         setAllProducts(products);
         setFilteredProducts(products);
         setCategories(categories);

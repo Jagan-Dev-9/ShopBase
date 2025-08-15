@@ -20,17 +20,14 @@ export default function Navbar() {
   const { isAuthenticated, user } = useAuth();
   const { getCartItemCount } = useCart();
 
-  // Background matching theme - use consistent styling during SSR
   const bgClass = isDark 
     ? "bg-[#35235e] shadow sticky top-0 left-0 w-full z-[60] border-b border-pink-300/20"
     : "bg-white shadow sticky top-0 left-0 w-full z-[60] border-b border-gray-200";
 
-  // Prevent hydration mismatch by showing a consistent state during SSR
   if (!mounted) {
     return (
       <header className="bg-[#35235e] shadow sticky top-0 left-0 w-full z-[60] border-b border-pink-300/20">
         <nav className="flex items-center justify-between px-6 py-3 mx-auto max-w-7xl" aria-label="Global">
-          {/* Logo and branding */}
           <div className="flex items-center gap-2 group">
             <img
               src="/shopbase_logo.png"
@@ -48,17 +45,15 @@ export default function Navbar() {
             </span>
           </div>
           
-          {/* Placeholder for other elements */}
           <div className="hidden md:flex gap-4 items-center">
-            <div className="w-16 h-8"></div> {/* Home placeholder */}
-            <div className="w-20 h-8"></div> {/* Products placeholder */}
-            <div className="w-8 h-8"></div> {/* Cart placeholder */}
-            <div className="w-8 h-8"></div> {/* Theme toggle placeholder */}
-            <div className="w-16 h-8"></div> {/* Login placeholder */}
-            <div className="w-20 h-8"></div> {/* Register placeholder */}
+            <div className="w-16 h-8"></div>
+            <div className="w-20 h-8"></div>
+            <div className="w-8 h-8"></div>
+            <div className="w-8 h-8"></div>
+            <div className="w-16 h-8"></div>
+            <div className="w-20 h-8"></div>
           </div>
           
-          {/* Mobile hamburger placeholder */}
           <div className="flex md:hidden">
             <div className="w-8 h-8"></div>
           </div>
@@ -70,7 +65,6 @@ export default function Navbar() {
   return (
     <header className={bgClass}>
       <nav className="flex items-center justify-between px-6 py-3 mx-auto max-w-7xl" aria-label="Global">
-        {/* Logo and branding */}
         <Link href="/" className="flex items-center gap-2 group">
           <img
             src="/shopbase_logo.png"
@@ -88,7 +82,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop navigation */}
         <div className="hidden md:flex gap-4 items-center">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
@@ -110,7 +103,6 @@ export default function Navbar() {
               </Link>
             );
           })}
-          {/* Cart icon */}
           <Link
             href="/cart"
             className={`ml-2 p-2 rounded-full border-2 transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 relative ${
@@ -128,7 +120,6 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
             className={`ml-2 p-2 rounded-full border-2 transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 ${
@@ -141,7 +132,6 @@ export default function Navbar() {
             {isDark ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
           </button>
 
-          {/* Auth buttons */}
           {!isAuthenticated ? (
             <>
               <Link
@@ -168,7 +158,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile hamburger */}
         <div className="flex md:hidden">
           <button 
             onClick={() => setMobileMenuOpen(true)} 
@@ -180,7 +169,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className={`md:hidden fixed inset-0 z-[80] flex flex-col ${isDark ? 'bg-[#35235e]' : 'bg-white'}`}>
           <div className={`flex items-center justify-between px-6 py-3 border-b ${isDark ? 'border-pink-300/20' : 'border-gray-200'}`}>

@@ -7,11 +7,9 @@ export default function Page() {
   const { isDark, mounted } = useTheme();
   const { isAuthenticated } = useAuth();
 
-  // Prevent hydration mismatch by showing consistent state during SSR
   if (!mounted) {
     return (
       <div className="relative h-screen overflow-hidden bg-gradient-to-tr from-[#191720] via-[#35235e] via-70% to-[#fb7185]">
-        {/* Glass/blur premium overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute left-1/4 top-0 h-80 w-2/5 blur-3xl bg-pink-300 opacity-20 rounded-full" />
           <div className="absolute right-5 bottom-1/4 h-72 w-1/3 blur-3xl bg-indigo-400 opacity-20 rounded-full" />
@@ -58,7 +56,6 @@ export default function Page() {
         ? 'bg-gradient-to-tr from-[#191720] via-[#35235e] via-70% to-[#fb7185]'
         : 'bg-gradient-to-tr from-blue-50 via-pink-50 via-70% to-purple-100'
     }`}>
-      {/* Glass/blur premium overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className={`absolute left-1/4 top-0 h-80 w-2/5 blur-3xl rounded-full ${
           isDark ? 'bg-pink-300 opacity-20' : 'bg-pink-400 opacity-30'
@@ -69,7 +66,6 @@ export default function Page() {
       </div>
       <Navbar />
       <div className="relative z-10 px-6 flex flex-col justify-center items-center h-full">
-        {/* Big premium hero */}
         <div className="text-center">
           <h1
             className={`bg-clip-text text-transparent text-5xl sm:text-7xl font-extrabold drop-shadow-2xl tracking-tight ${

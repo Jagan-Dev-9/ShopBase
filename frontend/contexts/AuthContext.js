@@ -43,7 +43,6 @@ export function AuthProvider({ children }) {
         setUser(data.user);
       } else {
         if (res.status === 401) {
-          // Token is invalid, clear it
           setAccessToken(null);
         }
         setUser(null);
