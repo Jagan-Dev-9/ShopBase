@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -30,7 +31,7 @@ export default function LoginPage() {
           className="border p-2 rounded"
           required
         />
-        <button type="submit" className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+        <button type="submit" className="bg-[#FF8DA1] text-white py-2 rounded hover:bg-[#FF9CE9] transition">
           Login
         </button>
       </form>
