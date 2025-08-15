@@ -27,6 +27,7 @@ class ProductListView(generics.ListAPIView):
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-created_at']
+    pagination_class = None  # Disable pagination for products
 
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)

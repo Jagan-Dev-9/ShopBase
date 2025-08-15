@@ -1,9 +1,11 @@
 "use client";
 import Navbar from "../components/Navbar";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Page() {
   const { isDark, mounted } = useTheme();
+  const { isAuthenticated } = useAuth();
 
   // Prevent hydration mismatch by showing consistent state during SSR
   if (!mounted) {
@@ -35,12 +37,14 @@ export default function Page() {
               >
                 Shop Products
               </a>
-              <a
-                href="/register"
-                className="border border-pink-300 px-7 py-3 text-base rounded-lg font-semibold text-pink-100 bg-white/5 backdrop-blur-md shadow hover:scale-105 transition hover:bg-pink-50/10 hover:text-pink-200"
-              >
-                Create Account <span aria-hidden="true">→</span>
-              </a>
+              {!isAuthenticated && (
+                <a
+                  href="/register"
+                  className="border border-pink-300 px-7 py-3 text-base rounded-lg font-semibold text-pink-100 bg-white/5 backdrop-blur-md shadow hover:scale-105 transition hover:bg-pink-50/10 hover:text-pink-200"
+                >
+                  Create Account <span aria-hidden="true">→</span>
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -93,16 +97,18 @@ export default function Page() {
             >
               Shop Products
             </a>
-            <a
-              href="/register"
-              className={`border px-7 py-3 text-base rounded-lg font-semibold shadow hover:scale-105 transition ${
-                isDark 
-                  ? 'border-pink-300 text-pink-100 bg-white/5 backdrop-blur-md hover:bg-pink-50/10 hover:text-pink-200'
-                  : 'border-pink-500 text-pink-600 bg-white/50 backdrop-blur-md hover:bg-pink-100/70 hover:text-pink-700'
-              }`}
-            >
-              Create Account <span aria-hidden="true">→</span>
-            </a>
+            {!isAuthenticated && (
+              <a
+                href="/register"
+                className={`border px-7 py-3 text-base rounded-lg font-semibold shadow hover:scale-105 transition ${
+                  isDark 
+                    ? 'border-pink-300 text-pink-100 bg-white/5 backdrop-blur-md hover:bg-pink-50/10 hover:text-pink-200'
+                    : 'border-pink-500 text-pink-600 bg-white/50 backdrop-blur-md hover:bg-pink-100/70 hover:text-pink-700'
+                }`}
+              >
+                Create Account <span aria-hidden="true">→</span>
+              </a>
+            )}
           </div>
         </div>
       </div>

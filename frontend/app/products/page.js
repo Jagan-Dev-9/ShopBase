@@ -27,8 +27,8 @@ export default function ProductsPage() {
   // Fetch products and categories
   useEffect(() => {
     Promise.all([
-      fetch("http://127.0.0.1:8000/api/products/"),
-      fetch("http://127.0.0.1:8000/api/products/categories/")
+      fetch("http://localhost:8000/api/products/"),
+      fetch("http://localhost:8000/api/products/categories/")
     ])
       .then(([productsRes, categoriesRes]) => {
         if (!productsRes.ok) throw new Error("Failed to fetch products");
@@ -36,19 +36,43 @@ export default function ProductsPage() {
         return Promise.all([productsRes.json(), categoriesRes.json()]);
       })
       .then(([productsData, categoriesData]) => {
-        setAllProducts(productsData);
-        setFilteredProducts(productsData);
-        setCategories(categoriesData);
+        // Handle both paginated and non-paginated responses
+        const products = productsData?.results 
+          ? productsData.results  // Paginated response
+          : (Array.isArray(productsData) ? productsData : []); // Direct array or fallback
+        const categories = Array.isArray(categoriesData) ? categoriesData : [];
+        
+        console.log("Products received:", products.length, "products");
+        console.log("Categories received:", categories.length, "categories");
+        
+        setAllProducts(products);
+        setFilteredProducts(products);
+        setCategories(categories);
         setLoading(false);
       })
       .catch((err) => {
+        console.error("Error fetching data:", err);
         setError(err.message);
+        setAllProducts([]);
+        setFilteredProducts([]);
+        setCategories([]);
         setLoading(false);
       });
   }, []);
 
   // Apply filters and sorting
   useEffect(() => {
+    // Only filter if allProducts is loaded and is an array
+    if (!Array.isArray(allProducts)) {
+      return;
+    }
+
+    // If allProducts is empty, set filteredProducts to empty as well
+    if (allProducts.length === 0) {
+      setFilteredProducts([]);
+      return;
+    }
+
     let filtered = [...allProducts];
 
     // Search filter
@@ -343,7 +367,7 @@ export default function ProductsPage() {
 
             {/* Results Info */}
             <div className={`text-center mb-6 ${isDark ? 'text-white' : 'text-gray-700'}`}>
-              Showing {filteredProducts.length} of {allProducts.length} products
+              Showing {filteredProducts?.length || 0} of {allProducts?.length || 0} products
               {searchTerm && (
                 <span> for "{searchTerm}"</span>
               )}
@@ -354,8 +378,10 @@ export default function ProductsPage() {
           {error && <div className={`text-center ${isDark ? 'text-red-300' : 'text-red-600'}`}>Error: {error}</div>}
           
           {/* Products Grid */}
-          <div className={getGridClasses(filteredProducts.length)}>
-            {filteredProducts.map((product) => (
+          {!loading && !error && (
+            <div className={getGridClasses(filteredProducts?.length || 0)}>
+              {filteredProducts && filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
               <Link href={`/products/${product.id}`} key={product.id}>
                 <div className={`relative z-10 cursor-pointer border rounded-xl p-5 shadow-lg backdrop-blur-md hover:scale-105 transition-transform flex flex-col h-96 w-full max-w-sm ${
                   isDark 
@@ -368,7 +394,7 @@ export default function ProductsPage() {
                   }`}>
                     {product.image ? (
                       <img
-                        src={product.image.startsWith("http") ? product.image : `http://127.0.0.1:8000${product.image}`}
+                        src={product.image.startsWith("http") ? product.image : `http://localhost:8000${product.image}`}
                         alt={product.name}
                         className={`w-full h-full object-contain rounded border ${
                           isDark ? 'border-white/30' : 'border-gray-300'
@@ -423,8 +449,24 @@ export default function ProductsPage() {
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
+            ))
+            ) : (
+              <div className={`col-span-full text-center py-12 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                <p className="text-lg">No products found matching your criteria.</p>
+                <button 
+                  onClick={clearFilters}
+                  className={`mt-4 px-6 py-2 rounded-lg transition ${
+                    isDark 
+                      ? 'bg-pink-500/20 text-pink-300 hover:bg-pink-500/30' 
+                      : 'bg-pink-100 text-pink-600 hover:bg-pink-200'
+                  }`}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+            </div>
+          )}
         </div>
       </main>
     </div>

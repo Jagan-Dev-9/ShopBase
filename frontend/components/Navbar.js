@@ -5,16 +5,18 @@ import { Bars3Icon, XMarkIcon, ShoppingCartIcon, SunIcon, MoonIcon } from "@hero
 import ProfileIcon from "./ProfileIcon";
 import { usePathname } from "next/navigation";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
 ];
 
-export default function Navbar({ isAuthenticated = false }) {
+export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { isDark, toggleTheme, mounted } = useTheme();
+  const { isAuthenticated, user } = useAuth();
 
   // Background matching theme - use consistent styling during SSR
   const bgClass = isDark 
