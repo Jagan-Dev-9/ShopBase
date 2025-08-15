@@ -5,14 +5,79 @@ import Link from "next/link";
 import Navbar from "../../../components/Navbar";
 import { ArrowLeftIcon, TagIcon, CurrencyDollarIcon, CubeIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useCart } from "../../../contexts/CartContext";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
+  const { addToCart, loading: cartLoading, error: cartError, clearError } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    setAddingToCart(true);
+    const success = await addToCart(product.id, quantity);
+    if (success) {
+      // Show stylish success message
+      const successDiv = document.createElement('div');
+      successDiv.className = 'fixed top-20 right-4 z-50 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-md transform transition-all duration-500 translate-x-full';
+      successDiv.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span class="font-semibold">Added to cart successfully!</span>
+        </div>
+      `;
+      document.body.appendChild(successDiv);
+      
+      // Animate in
+      setTimeout(() => successDiv.classList.remove('translate-x-full'), 100);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        successDiv.classList.add('translate-x-full');
+        setTimeout(() => document.body.removeChild(successDiv), 500);
+      }, 3000);
+    }
+    setAddingToCart(false);
+  };
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    setAddingToCart(true);
+    const success = await addToCart(product.id, quantity);
+    if (success) {
+      router.push('/cart');
+    }
+    setAddingToCart(false);
+  };
+
+  // Helper function to get valid image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined' || imageUrl.trim() === '') {
+      return null;
+    }
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+    return `http://localhost:8000${imageUrl}`;
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -122,9 +187,9 @@ export default function ProductDetailPage() {
                 <div className={`relative w-full max-w-md h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg border-2 ${
                   isDark ? 'border-pink-300/30 bg-black/30' : 'border-pink-200 bg-white'
                 }`}>
-                  {product.image ? (
+                  {getImageUrl(product.image) ? (
                     <img
-                      src={product.image.startsWith("http") ? product.image : `http://localhost:8000${product.image}`}
+                      src={getImageUrl(product.image)}
                       alt={product.name}
                       className="w-full h-full object-contain"
                     />
@@ -211,30 +276,102 @@ export default function ProductDetailPage() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button
-                    disabled={product.stock === 0}
-                    className={`flex-1 py-3 px-6 rounded-lg font-semibold text-white transition ${
-                      product.stock === 0
-                        ? 'bg-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 hover:scale-105'
-                    }`}
-                  >
-                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                  </button>
-                  
-                  <button
-                    disabled={product.stock === 0}
-                    className={`flex-1 py-3 px-6 rounded-lg border font-semibold transition hover:scale-105 ${
-                      product.stock === 0
-                        ? 'border-gray-500 text-gray-500 cursor-not-allowed opacity-50'
-                        : isDark
-                          ? 'border-pink-400 text-pink-300 bg-transparent hover:bg-pink-400 hover:text-white'
-                          : 'border-pink-500 text-pink-600 bg-transparent hover:bg-pink-500 hover:text-white'
-                    }`}
-                  >
-                    {product.stock === 0 ? 'Unavailable' : 'Buy Now'}
-                  </button>
+                <div className="space-y-4 pt-4">
+                  {/* Cart Error Display */}
+                  {cartError && (
+                    <div className="p-3 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <p className="text-red-700 dark:text-red-300 text-sm">{cartError}</p>
+                        <button
+                          onClick={clearError}
+                          className="text-red-500 hover:text-red-700 dark:hover:text-red-300"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quantity Selector */}
+                  {product.stock > 0 && (
+                    <div className="flex items-center gap-4">
+                      <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                        Quantity:
+                      </span>
+                      <div className="flex items-center">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className={`px-3 py-1 border rounded-l-lg ${
+                            isDark 
+                              ? 'border-white/20 bg-white/10 text-white hover:bg-white/20'
+                              : 'border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          max={product.stock}
+                          value={quantity}
+                          onChange={(e) => setQuantity(Math.min(product.stock, Math.max(1, parseInt(e.target.value) || 1)))}
+                          className={`w-16 px-2 py-1 border-t border-b text-center ${
+                            isDark 
+                              ? 'border-white/20 bg-white/5 text-white'
+                              : 'border-gray-300 bg-white text-gray-700'
+                          }`}
+                        />
+                        <button
+                          onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                          className={`px-3 py-1 border rounded-r-lg ${
+                            isDark 
+                              ? 'border-white/20 bg-white/10 text-white hover:bg-white/20'
+                              : 'border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={product.stock === 0 || addingToCart}
+                      className={`flex-1 py-3 px-6 rounded-lg font-semibold text-white transition ${
+                        product.stock === 0 || addingToCart
+                          ? 'bg-gray-500 cursor-not-allowed opacity-50'
+                          : 'bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 hover:scale-105'
+                      }`}
+                    >
+                      {addingToCart 
+                        ? 'Adding...' 
+                        : product.stock === 0 
+                          ? 'Out of Stock' 
+                          : 'Add to Cart'
+                      }
+                    </button>
+                    
+                    <button
+                      onClick={handleBuyNow}
+                      disabled={product.stock === 0 || addingToCart}
+                      className={`flex-1 py-3 px-6 rounded-lg border font-semibold transition hover:scale-105 ${
+                        product.stock === 0 || addingToCart
+                          ? 'border-gray-500 text-gray-500 cursor-not-allowed opacity-50'
+                          : isDark
+                            ? 'border-pink-400 text-pink-300 bg-transparent hover:bg-pink-400 hover:text-white'
+                            : 'border-pink-500 text-pink-600 bg-transparent hover:bg-pink-500 hover:text-white'
+                      }`}
+                    >
+                      {addingToCart 
+                        ? 'Processing...' 
+                        : product.stock === 0 
+                          ? 'Unavailable' 
+                          : 'Buy Now'
+                      }
+                    </button>
+                  </div>
                 </div>
 
                 {/* Product Meta */}

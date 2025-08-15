@@ -6,6 +6,7 @@ import ProfileIcon from "./ProfileIcon";
 import { usePathname } from "next/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -17,6 +18,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isDark, toggleTheme, mounted } = useTheme();
   const { isAuthenticated, user } = useAuth();
+  const { getCartItemCount } = useCart();
 
   // Background matching theme - use consistent styling during SSR
   const bgClass = isDark 
@@ -111,7 +113,7 @@ export default function Navbar() {
           {/* Cart icon */}
           <Link
             href="/cart"
-            className={`ml-2 p-2 rounded-full border-2 transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 ${
+            className={`ml-2 p-2 rounded-full border-2 transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 relative ${
               isDark 
                 ? 'border-pink-300/40 bg-white/10 text-gray-300 hover:text-white hover:bg-pink-500/20 hover:border-pink-300'
                 : 'border-pink-400/50 bg-pink-50/80 text-gray-600 hover:text-pink-600 hover:bg-pink-100 hover:border-pink-500'
@@ -119,6 +121,11 @@ export default function Navbar() {
             aria-label="View cart"
           >
             <ShoppingCartIcon className="h-4 w-4" />
+            {isAuthenticated && getCartItemCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {getCartItemCount()}
+              </span>
+            )}
           </Link>
 
           {/* Theme toggle */}

@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import CustomSelect from "../../components/CustomSelect";
+import ImageWithFallback from "../../components/ImageWithFallback";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 import { MagnifyingGlassIcon, FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
@@ -15,6 +19,9 @@ export default function ProductsPage() {
   const [error, setError] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
+  const { addToCart, error: cartError, clearError } = useCart();
+  const router = useRouter();
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +30,53 @@ export default function ProductsPage() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [inStockOnly, setInStockOnly] = useState(false);
+
+  // Handle adding to cart
+  const handleAddToCart = async (e, productId) => {
+    e.preventDefault(); // Prevent Link navigation
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    const success = await addToCart(productId, 1);
+    if (success) {
+      // Show stylish success message
+      const successDiv = document.createElement('div');
+      successDiv.className = 'fixed top-20 right-4 z-50 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-md transform transition-all duration-500 translate-x-full';
+      successDiv.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span class="font-semibold">Added to cart!</span>
+        </div>
+      `;
+      document.body.appendChild(successDiv);
+      
+      // Animate in
+      setTimeout(() => successDiv.classList.remove('translate-x-full'), 100);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        successDiv.classList.add('translate-x-full');
+        setTimeout(() => document.body.removeChild(successDiv), 500);
+      }, 3000);
+    }
+  };
+
+  // Helper function to get valid image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined' || imageUrl.trim() === '') {
+      return null;
+    }
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+    return `http://localhost:8000${imageUrl}`;
+  };
 
   // Fetch products and categories
   useEffect(() => {
@@ -182,6 +236,23 @@ export default function ProductsPage() {
           }`}>
             Products
           </h1>
+
+          {/* Cart Error Display */}
+          {cartError && (
+            <div className="max-w-7xl mx-auto mb-6">
+              <div className="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <p className="text-red-700 dark:text-red-300">{cartError}</p>
+                  <button
+                    onClick={clearError}
+                    className="text-red-500 hover:text-red-700 dark:hover:text-red-300"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Search and Filter Controls */}
           <div className="max-w-7xl mx-auto mb-8 overflow-visible">
@@ -392,9 +463,9 @@ export default function ProductsPage() {
                   <div className={`h-3/5 flex items-center justify-center mb-3 overflow-hidden rounded ${
                     isDark ? 'bg-black/30 backdrop-blur-sm' : 'bg-white'
                   }`}>
-                    {product.image ? (
+                    {getImageUrl(product.image) ? (
                       <img
-                        src={product.image.startsWith("http") ? product.image : `http://localhost:8000${product.image}`}
+                        src={getImageUrl(product.image)}
                         alt={product.name}
                         className={`w-full h-full object-contain rounded border ${
                           isDark ? 'border-white/30' : 'border-gray-300'
@@ -442,8 +513,12 @@ export default function ProductsPage() {
                           isDark ? 'text-white/60' : 'text-gray-500'
                         }`}>Stock: {product.stock}</div>
                       )}
-                      <button className="w-full py-1.5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-sm rounded hover:from-pink-600 hover:to-orange-500 transition disabled:bg-gray-600 disabled:opacity-50" disabled={product.stock === 0}>
-                        Add to Cart
+                      <button 
+                        onClick={(e) => handleAddToCart(e, product.id)}
+                        className="w-full py-1.5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-sm rounded hover:from-pink-600 hover:to-orange-500 transition disabled:bg-gray-600 disabled:opacity-50" 
+                        disabled={product.stock === 0}
+                      >
+                        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                       </button>
                     </div>
                   </div>
