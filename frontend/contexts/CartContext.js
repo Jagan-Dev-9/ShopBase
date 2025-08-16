@@ -43,15 +43,31 @@ export function CartProvider({ children }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setCart(data);
-        setError(null); // Clear any previous errors
+        try {
+          const data = await response.json();
+          setCart(data);
+          setError(null); // Clear any previous errors
+        } catch (jsonError) {
+          console.error('Error parsing cart response as JSON:', jsonError);
+          const textResponse = await response.text();
+          console.error('Response text:', textResponse);
+          setError('Invalid response from server');
+        }
       } else if (response.status === 401) {
         // Token is invalid, clear cart
         setCart(null);
         localStorage.removeItem('accessToken');
       } else {
-        console.error('Failed to fetch cart');
+        try {
+          const errorData = await response.json();
+          console.error('Cart API error:', errorData);
+          setError(errorData.message || 'Failed to fetch cart');
+        } catch (jsonError) {
+          console.error('Error parsing error response as JSON:', jsonError);
+          const textResponse = await response.text();
+          console.error('Error response text:', textResponse);
+          setError('Server error - please try again');
+        }
       }
     } catch (error) {
       console.error('Error fetching cart:', error);

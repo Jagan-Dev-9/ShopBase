@@ -34,6 +34,18 @@ export const getApiUrl = (endpoint) => {
   return `${apiConfig.baseURL}${endpoint}`;
 };
 
+// Helper function to safely parse JSON responses
+export const safeJsonParse = async (response) => {
+  try {
+    return await response.json();
+  } catch (error) {
+    console.error('JSON parsing error:', error);
+    const textContent = await response.text();
+    console.error('Response content:', textContent);
+    throw new Error('Invalid JSON response from server');
+  }
+};
+
 // Helper function to get media URL
 export const getMediaUrl = (mediaPath) => {
   if (mediaPath.startsWith('http')) {
