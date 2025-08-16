@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY: Change these values for production deployment
 SECRET_KEY = 'django-insecure--a4!%x7ing+00s3iljggu4gor4hepp^#si*+0!pcf*p@l(t*jc'  # Generate new secret key for production
 DEBUG = True  # Set to False in production
-ALLOWED_HOSTS = ["https://shopbase.onrender.com/"]  # Add your domain names for production
+ALLOWED_HOSTS = ['*']  # Add your domain names for production
 
 
 # Application definition - Add your custom apps to the 'Local' section
