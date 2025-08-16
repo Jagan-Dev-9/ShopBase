@@ -35,12 +35,18 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch(getApiUrl(apiConfig.endpoints.cart), {
+      const url = getApiUrl(apiConfig.endpoints.cart);
+      console.log('Fetching cart from URL:', url);
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
+
+      console.log('Cart API response status:', response.status);
+      console.log('Cart API response headers:', response.headers.get('content-type'));
 
       if (response.ok) {
         try {
