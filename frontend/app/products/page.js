@@ -10,6 +10,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { MagnifyingGlassIcon, FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { getApiUrl, getMediaUrl, apiConfig } from "../../utils/apiConfig";
 
 export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
@@ -72,17 +73,14 @@ export default function ProductsPage() {
     if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined' || imageUrl.trim() === '') {
       return null;
     }
-    if (imageUrl.startsWith('http')) {
-      return imageUrl;
-    }
-    return `http://localhost:8000${imageUrl}`;
+    return getMediaUrl(imageUrl);
   };
 
   // Fetch products and categories
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:8000/api/products/"),
-      fetch("http://localhost:8000/api/products/categories/")
+      fetch(getApiUrl(apiConfig.endpoints.products)),
+      fetch(getApiUrl(apiConfig.endpoints.categories))
     ])
       .then(([productsRes, categoriesRes]) => {
         if (!productsRes.ok) throw new Error("Failed to fetch products");

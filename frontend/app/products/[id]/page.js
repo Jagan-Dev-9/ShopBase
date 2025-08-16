@@ -7,6 +7,7 @@ import { ArrowLeftIcon, TagIcon, CurrencyDollarIcon, CubeIcon } from "@heroicons
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useCart } from "../../../contexts/CartContext";
+import { getApiUrl, getMediaUrl, apiConfig } from "../../../utils/apiConfig";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -73,16 +74,13 @@ export default function ProductDetailPage() {
     if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined' || imageUrl.trim() === '') {
       return null;
     }
-    if (imageUrl.startsWith('http')) {
-      return imageUrl;
-    }
-    return `http://localhost:8000${imageUrl}`;
+    return getMediaUrl(imageUrl);
   };
 
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const res = await fetch(`http://localhost:8000/api/products/${id}/`);
+        const res = await fetch(getApiUrl(`${apiConfig.endpoints.products}${id}/`));
         if (!res.ok) throw new Error("Failed to fetch product");
         const data = await res.json();
         setProduct(data);

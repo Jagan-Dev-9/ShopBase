@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import { getApiUrl, apiConfig } from "../utils/apiConfig";
 
 const AuthContext = createContext();
 
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
 
   const fetchUserProfile = async (token) => {
     try {
-      const res = await fetch("http://localhost:8000/api/accounts/profile/", {
+      const res = await fetch(getApiUrl(apiConfig.endpoints.profile), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -57,7 +58,7 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      const res = await fetch("http://localhost:8000/api/accounts/login/", {
+      const res = await fetch(getApiUrl(apiConfig.endpoints.login), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -85,7 +86,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      const res = await fetch("http://localhost:8000/api/accounts/register/", {
+      const res = await fetch(getApiUrl(apiConfig.endpoints.register), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -116,7 +117,7 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = async (userData) => {
     try {
-      const res = await fetch("http://localhost:8000/api/accounts/me/", {
+      const res = await fetch(getApiUrl(apiConfig.endpoints.userProfile), {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

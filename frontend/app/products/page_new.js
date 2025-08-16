@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
+import { getApiUrl, getMediaUrl, apiConfig } from "../../utils/apiConfig";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -9,7 +10,7 @@ export default function ProductsPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/products/")
+    fetch(getApiUrl(apiConfig.endpoints.products))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch products");
         return res.json();
@@ -45,7 +46,7 @@ export default function ProductsPage() {
                 <div className="cursor-pointer border border-white/20 rounded-xl p-5 shadow-lg bg-white/10 backdrop-blur-md hover:scale-105 transition-transform flex flex-col items-center h-84 justify-between">
                   {product.image ? (
                     <img
-                      src={product.image.startsWith("http") ? product.image : `http://127.0.0.1:8000${product.image}`}
+                      src={getMediaUrl(product.image)}
                       alt={product.name}
                       className="w-32 h-32 object-cover rounded mb-4 border border-white/30"
                     />

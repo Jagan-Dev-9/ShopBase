@@ -13,6 +13,7 @@ import {
   MagnifyingGlassIcon,
   PlusIcon
 } from "@heroicons/react/24/outline";
+import { getApiUrl, apiConfig } from "../../../utils/apiConfig";
 
 export default function AdminUsersPage() {
   const { user, isAuthenticated, isAdmin, accessToken } = useAuth();
@@ -42,7 +43,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/accounts/users/", {
+      const res = await fetch(getApiUrl(apiConfig.endpoints.users), {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -76,7 +77,7 @@ export default function AdminUsersPage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/accounts/users/${editingUser}/`, {
+      const res = await fetch(getApiUrl(`${apiConfig.endpoints.users}${editingUser}/`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +100,7 @@ export default function AdminUsersPage() {
 
   const handleToggleStatus = async (userId) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/accounts/users/${userId}/toggle-status/`, {
+      const res = await fetch(getApiUrl(`${apiConfig.endpoints.users}${userId}/toggle-status/`), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,

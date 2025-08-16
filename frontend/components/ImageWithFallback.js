@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getMediaUrl } from '../utils/apiConfig';
 
 export default function ImageWithFallback({ 
   src, 
@@ -17,10 +18,7 @@ export default function ImageWithFallback({
     if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined' || imageUrl.trim() === '') {
       return fallbackSrc;
     }
-    if (imageUrl.startsWith('http')) {
-      return imageUrl;
-    }
-    return `http://localhost:8000${imageUrl}`;
+    return getMediaUrl(imageUrl);
   };
 
   const handleError = () => {

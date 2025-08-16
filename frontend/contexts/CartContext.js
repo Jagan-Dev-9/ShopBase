@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { getApiUrl, apiConfig } from '../utils/apiConfig';
 
 const CartContext = createContext();
 
@@ -34,7 +35,7 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/cart/', {
+      const response = await fetch(getApiUrl(apiConfig.endpoints.cart), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/cart/add/', {
+      const response = await fetch(getApiUrl(apiConfig.endpoints.cartAdd), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +118,7 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/api/cart/update/${itemId}/`, {
+      const response = await fetch(getApiUrl(`${apiConfig.endpoints.cartUpdate}${itemId}/`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -151,7 +152,7 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/api/cart/remove/${itemId}/`, {
+      const response = await fetch(getApiUrl(`${apiConfig.endpoints.cartRemove}${itemId}/`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -185,7 +186,7 @@ export function CartProvider({ children }) {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/cart/clear/', {
+      const response = await fetch(getApiUrl(apiConfig.endpoints.cartClear), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
