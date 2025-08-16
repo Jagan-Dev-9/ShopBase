@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getApiUrl, apiConfig } from '../utils/apiConfig';
+import { getApiUrl, apiConfig, safeJsonParse } from '../utils/apiConfig';
 import stripePromise from '../lib/stripe';
 
 export const usePayment = () => {
@@ -29,11 +29,21 @@ export const usePayment = () => {
                 }),
             });
 
-            const data = await response.json();
+            console.log('Checkout session response status:', response.status);
+            console.log('Checkout session response content-type:', response.headers.get('content-type'));
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to create checkout session');
+                // Handle error responses
+                try {
+                    const errorData = await safeJsonParse(response);
+                    throw new Error(errorData.error || errorData.detail || 'Failed to create checkout session');
+                } catch (parseError) {
+                    console.error('Error parsing checkout session error response:', parseError);
+                    throw new Error(`Checkout failed with status ${response.status}`);
+                }
             }
+
+            const data = await safeJsonParse(response);
 
             return data;
         } catch (err) {
@@ -63,11 +73,21 @@ export const usePayment = () => {
                 },
             });
 
-            const data = await response.json();
+            console.log('Cart checkout session response status:', response.status);
+            console.log('Cart checkout session response content-type:', response.headers.get('content-type'));
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to create checkout session');
+                // Handle error responses
+                try {
+                    const errorData = await safeJsonParse(response);
+                    throw new Error(errorData.error || errorData.detail || 'Failed to create checkout session');
+                } catch (parseError) {
+                    console.error('Error parsing cart checkout session error response:', parseError);
+                    throw new Error(`Cart checkout failed with status ${response.status}`);
+                }
             }
+
+            const data = await safeJsonParse(response);
 
             return data;
         } catch (err) {

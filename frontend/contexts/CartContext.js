@@ -22,19 +22,25 @@ export function CartProvider({ children }) {
 
   // Fetch cart from API
   const fetchCart = async () => {
-    if (!isAuthenticated) {
+    // Early return if not authenticated
+    if (!isAuthenticated || !user) {
       setCart(null);
+      setError(null);
+      setLoading(false);
       return;
     }
 
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setCart(null);
+      setError(null);
+      setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      setError(null); // Clear previous errors
       const url = getApiUrl(apiConfig.endpoints.cart);
       console.log('Fetching cart from URL:', url);
       
@@ -50,9 +56,18 @@ export function CartProvider({ children }) {
 
       if (response.ok) {
         try {
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            console.error('Expected JSON response, got:', contentType);
+            const textResponse = await response.text();
+            console.error('Response text:', textResponse);
+            setError('Invalid response format from server');
+            return;
+          }
+          
           const data = await response.json();
           setCart(data);
-          setError(null); // Clear any previous errors
+          setError(null);
         } catch (jsonError) {
           console.error('Error parsing cart response as JSON:', jsonError);
           const textResponse = await response.text();
@@ -60,18 +75,26 @@ export function CartProvider({ children }) {
           setError('Invalid response from server');
         }
       } else if (response.status === 401) {
-        // Token is invalid, clear cart
+        // Token is invalid, clear authentication
         setCart(null);
+        setError(null);
         localStorage.removeItem('accessToken');
+        // Don't try to parse response for 401 errors
       } else {
         try {
-          const errorData = await response.json();
-          console.error('Cart API error:', errorData);
-          setError(errorData.message || 'Failed to fetch cart');
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            console.error('Cart API error:', errorData);
+            setError(errorData.message || errorData.detail || 'Failed to fetch cart');
+          } else {
+            console.error('Non-JSON error response, content-type:', contentType);
+            const textResponse = await response.text();
+            console.error('Error response text:', textResponse);
+            setError('Server error - please try again');
+          }
         } catch (jsonError) {
           console.error('Error parsing error response as JSON:', jsonError);
-          const textResponse = await response.text();
-          console.error('Error response text:', textResponse);
           setError('Server error - please try again');
         }
       }
