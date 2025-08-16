@@ -2,14 +2,19 @@
 Django settings for ShopBase project.
 """
 
+import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY: Change these values for production deployment
-SECRET_KEY = 'django-insecure--a4!%x7ing+00s3iljggu4gor4hepp^#si*+0!pcf*p@l(t*jc'  # Generate new secret key for production
-DEBUG = True  # Set to False in production
-ALLOWED_HOSTS = ['*']  # Add your domain names for production
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure--a4!%x7ing+00s3iljggu4gor4hepp^#si*+0!pcf*p@l(t*jc')
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition - Add your custom apps to the 'Local' section
@@ -48,6 +53,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,10 +83,10 @@ WSGI_APPLICATION = 'shopbase.wsgi.application'
 
 # Database configuration - Change to PostgreSQL/MySQL for production
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Use PostgreSQL in production
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
 
 
@@ -110,7 +116,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Simplified static file serving with WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default model field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -118,7 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 # Media files configuration
-import os
 MEDIA_URL = '/products/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'products')
 
