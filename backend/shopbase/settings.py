@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'accounts',
     'products',
     'cart',
+    'payments',
 ]
 
 # REST Framework configuration - Modify authentication and permissions here
@@ -134,7 +135,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'products')
 # CORS configuration
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    "*",
     "http://localhost:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3000",
@@ -173,3 +173,8 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 }
+
+# Stripe Configuration
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')

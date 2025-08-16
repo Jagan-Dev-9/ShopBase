@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../../../components/Navbar";
+import PayNowButton from "../../../components/PayNowButton";
 import { ArrowLeftIcon, TagIcon, CurrencyDollarIcon, CubeIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -351,24 +352,14 @@ export default function ProductDetailPage() {
                       }
                     </button>
                     
-                    <button
-                      onClick={handleBuyNow}
-                      disabled={product.stock === 0 || addingToCart}
-                      className={`flex-1 py-3 px-6 rounded-lg border font-semibold transition hover:scale-105 ${
-                        product.stock === 0 || addingToCart
-                          ? 'border-gray-500 text-gray-500 cursor-not-allowed opacity-50'
-                          : isDark
-                            ? 'border-pink-400 text-pink-300 bg-transparent hover:bg-pink-400 hover:text-white'
-                            : 'border-pink-500 text-pink-600 bg-transparent hover:bg-pink-500 hover:text-white'
-                      }`}
-                    >
-                      {addingToCart 
-                        ? 'Processing...' 
-                        : product.stock === 0 
-                          ? 'Unavailable' 
-                          : 'Buy Now'
-                      }
-                    </button>
+                    <div className="flex-1">
+                      <PayNowButton
+                        productName={product.name}
+                        amount={product.price}
+                        disabled={product.stock === 0}
+                        className="text-base py-0 hover:scale-100"
+                      />
+                    </div>
                   </div>
                 </div>
 

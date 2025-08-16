@@ -21,6 +21,11 @@ export const apiConfig = {
     cartUpdate: '/api/cart/update/',
     cartRemove: '/api/cart/remove/',
     cartClear: '/api/cart/clear/',
+    
+    // Payment endpoints
+    createCheckoutSession: '/api/payments/create-checkout-session/',
+    createCartCheckoutSession: '/api/payments/create-cart-checkout-session/',
+    paymentHistory: '/api/payments/history/',
   }
 };
 

@@ -7,6 +7,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import ImageWithFallback from '../../components/ImageWithFallback';
+import PayNowButton from '../../components/PayNowButton';
 
 export default function CartPage() {
   const { user, loading: authLoading } = useAuth();
@@ -361,10 +362,10 @@ export default function CartPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <button className="w-full py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white rounded-2xl hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-xl font-bold text-lg relative overflow-hidden group">
-                      <span className="relative z-10">Proceed to Checkout</span>
-                      <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </button>
+                    <PayNowButton 
+                      type="cart"
+                      amount={cart.total_price}
+                    />
 
                     <button
                       onClick={() => router.push('/products')}
